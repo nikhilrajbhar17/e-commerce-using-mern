@@ -1,5 +1,19 @@
 [
-    {
-        
-    }
+  {
+    "name": "Sandisk ultra",
+    "price": 454,
+    "Description": "whi is this",
+    "ratings": 4.5,
+    "images": [
+      {
+        "public_id": "samples/ecommerce/accessories-bag",
+        "url": "https://res.cloudinary.com/dcjiojvwu/image/upload/v1706751554/samples/ecommerce/accessories-bag.jpg"
+      }
+    ],
+    "category": "Electronics",
+    "seller": "Ebay",
+    "stock": 50,
+    "numOfReviews": 32,
+    "reviews": []
+  }
 ]
