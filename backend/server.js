@@ -5,6 +5,7 @@ const db = require("./config/database");
 process.on("uncaughtException", (err) => {
   console.log(`Error ${err.message}`);
   console.log("shutting down the server due to uncaught exception ");
+  process.exit(1);
 });
 
 // setting up config file
