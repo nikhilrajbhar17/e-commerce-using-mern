@@ -55,5 +55,8 @@ userSchema.methods.getJwtToken= function(){
   expiresIn : process.env.JWT_EXPIRES_TIME
  });
 }
+userSchema.methods.comparePassword = async function (enteredPassword){
+  return await bcrypt.compare(enteredPassword, this.password);
+}
 // exporting the model
 module.exports = mongoose.model("User", userSchema);
