@@ -15,8 +15,9 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
       url: "https://res.cloudinary.com/dcjiojvwu/image/upload/v1706751554/samples/ecommerce/accessories-bag.jpg",
     },
   });
+  const token = user.getJwtToken();
   res.status(201).json({
     success: true,
-    user,
+    token,
   });
 });
