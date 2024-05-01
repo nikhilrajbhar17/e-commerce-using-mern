@@ -3,7 +3,7 @@ const ErrorHandler = require("../utils/errorHandler");
 const catchAsyncError = require("../middlewares/catchAsyncError");
 const sendToken = require("../utils/jwtToken");
 const sendEmail = require("../utils/sendEmail");
-
+const crypto = require("crypto");
 // register user =>api/v1/register
 
 exports.registerUser = catchAsyncError(async (req, res, next) => {
@@ -46,7 +46,6 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
 // forgot password  =>api/v1/pass/
 exports.forgotPassword = catchAsyncError(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
-  console.log("here");
   if (!user) {
     return next(new ErrorHandler("User not found with this email", 404));
   }
@@ -77,6 +76,47 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
     return next(new ErrorHandler(error.message, 500));
   }
+});
+
+// reset password
+exports.resetPassword = catchAsyncError(async (req, res, next) => {
+  // hash url token
+  const params = req.params.token;
+  console.log(params);
+  console.log("this is normal param \n");
+  const resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(params)
+    .digest("hex");
+
+  console.log("normal token is" + req.body.params);
+  console.log("encrypted token is " + resetPasswordToken);
+
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+  if (!user) {
+    return next(
+      new ErrorHandler(
+        "password reset token is invalid or has been expired",
+        400
+      )
+    );
+  }
+
+  if (req.body.password !== req.body.confirmpassword) {
+    return next(new ErrorHandler("password does not match", 400));
+  }
+  // setup new paswsword
+  user.password = req.body.password;
+
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  sendToken(user, 200, res);
 });
 
 exports.logout = catchAsyncError(async (req, res, next) => {

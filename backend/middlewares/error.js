@@ -20,9 +20,21 @@ module.exports = (err, req, res, next) => {
     }
 
     if (err.name === "ValidationError") {
-      console.log("oject values");
-      console.log(Object.values(err.errors));
       const message = Object.values(err.errors).map((value) => value.message);
+      error = new ErrorHandler(message, 400);
+    }
+    if (err.code == 11000) {
+      const message = `Duplicate ${Object.keys(err.keyValue)} entered`;
+      error = new ErrorHandler(message, 400);
+    }
+
+    // handling wrong jst token
+    if (err.name === "JsonWebTokenError") {
+      const message = "JSON Web token is invalid ..Try again";
+      error = new ErrorHandler(message, 400);
+    }
+    if (err.name === "TokenExpiredError") {
+      const message = "JSON Web token is expired ..Try again";
       error = new ErrorHandler(message, 400);
     }
     console.log(error);
