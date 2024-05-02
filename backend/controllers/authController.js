@@ -140,7 +140,23 @@ exports.updatePassword = catchAsyncError(async (req, res, next) => {
   await user.save();
   sendToken(user, 200, res);
 });
+// update user profile
 
+exports.updateProfile = catchAsyncError(async (req, res, next) => {
+  console.log(req.body.email);
+  const newUserData = {
+    name: req.body.name,
+    email: req.body.email,
+  };
+  //  update avatar : TODO
+  const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+    new: true,
+    useFindAndModity: false,
+  });
+  res.status(200).json({
+    success: true,
+  });
+});
 exports.logout = catchAsyncError(async (req, res, next) => {
   res.cookie("token", null, {
     expires: new Date(Date.now()),
@@ -149,5 +165,64 @@ exports.logout = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "logged out",
+  });
+});
+
+// ADMIN ROUTES
+// get alluser
+exports.allUsers = catchAsyncError(async (req, res, next) => {
+  const users = await User.find();
+  res.status(200).json({
+    success: true,
+    users,
+  });
+});
+
+// get user details
+exports.userDetails = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return next(
+      new ErrorHandler(`user not found with this :id ${req.params.id} `)
+    );
+  }
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+// update use profile
+
+exports.updateUser = catchAsyncError(async (req, res, next) => {
+  console.log(req.body.email);
+  const newUserData = {
+    name: req.body.name,
+    email: req.body.email,
+    role: req.body.role,
+  };
+  //  update avatar : TODO
+  const user = await User.findByIdAndUpdate(req.params.id, newUserData, {
+    new: true,
+    useFindAndModity: false,
+  });
+  res.status(200).json({
+    success: true,
+  });
+});
+
+// delete user -->by admin
+exports.deleteUser = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return next(
+      new ErrorHandler(`user not found with this :id ${req.params.id} `)
+    );
+  }
+  // remove avatar from cloudinary : TODO
+  await user.deleteOne();
+  res.status(200).json({
+    success: true,
+    user,
   });
 });
