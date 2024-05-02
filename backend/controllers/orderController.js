@@ -77,18 +77,40 @@ exports.allOrders = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// update orders
-exports.allOrders = catchAsyncError(async (req, res, next) => {
+// update precessed orders
+exports.updateOrder = catchAsyncError(async (req, res, next) => {
   //   console.log(req);
-  const orders = await Order.find({});
-  let totalAmount = 0;
-  orders.forEach((order) => {
-    totalAmount += order.totalPrice;
+  const order = await Order.findById(req.params.id);
+  if (order.orderStatus === "Delivered") {
+    return next(new ErrorHandler("You have already delivered this order"), 400);
+  }
+  order.orderedItems.forEach(async (item) => {
+    await updateStock(item.product, item.quantity);
   });
+
+  order.orderStatus = req.body.status;
+  order.deliveredAt = Date.now();
 
   res.status(200).json({
     success: true,
-    totalAmount,
-    orders,
+    order,
+  });
+});
+async function updateStock(id, quantity) {
+  const product = await Product.findById(id);
+  product.stock = product.stock - quantity;
+  await product.save({ validateBeforeSave: false });
+}
+
+// delete order
+
+exports.deleteOrder = catchAsyncError(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) {
+    return next(new ErrorHandler("no order found with this id", 404));
+  }
+  await order.deleteOne();
+  res.status(200).json({
+    success: true,
   });
 });
