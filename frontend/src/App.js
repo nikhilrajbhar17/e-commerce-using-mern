@@ -10,7 +10,7 @@ function App() {
     <Router>
       <div className="App">
         <Header />
-        <div className="cotainer container-fluid">
+        <div className="container container-fluid">
           <Routes>
             <Route path="/" element={<Home />} />
             {/* Other routes go here */}
